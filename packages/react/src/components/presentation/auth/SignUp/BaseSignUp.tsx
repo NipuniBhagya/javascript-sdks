@@ -59,6 +59,11 @@ interface PasskeyState {
  */
 export interface BaseSignUpRenderProps {
   /**
+   * Additional data from the current flow step (e.g. `otpLength` for OTP steps).
+   */
+  additionalData: Record<string, any>;
+
+  /**
    * Flow components
    */
   components: any[];
@@ -459,6 +464,15 @@ const BaseSignUpContent: FC<BaseSignUpProps> = ({
   const formFields: any = useMemo(
     () => ((currentFlow?.data as any)?.components ? extractFormFields((currentFlow!.data as any).components) : []),
     [currentFlow, extractFormFields],
+  );
+
+  /**
+   * Step data the server sends alongside the components, such as the `otpLength` an OTP step
+   * reports so the field can render a matching number of boxes.
+   */
+  const additionalData: Record<string, any> = useMemo(
+    () => ((currentFlow?.data as any)?.additionalData as Record<string, any>) ?? {},
+    [currentFlow],
   );
 
   const form: any = useForm<Record<string, string>>({
@@ -975,6 +989,7 @@ const BaseSignUpContent: FC<BaseSignUpProps> = ({
         {
           _customRenderers: customRenderers,
           _theme: theme,
+          additionalData,
           buttonClassName: buttonClasses,
           inputClassName: inputClasses,
           onInputBlur: handleInputBlur,
@@ -985,6 +1000,7 @@ const BaseSignUpContent: FC<BaseSignUpProps> = ({
         },
       ),
     [
+      additionalData,
       customRenderers,
       formValues,
       touchedFields,
@@ -1093,6 +1109,7 @@ const BaseSignUpContent: FC<BaseSignUpProps> = ({
   // If render props are provided, use them
   if (children) {
     const renderProps: BaseSignUpRenderProps = {
+      additionalData,
       components: (currentFlow?.data as any)?.components || [],
       error: apiError,
       fieldErrors: formErrors,

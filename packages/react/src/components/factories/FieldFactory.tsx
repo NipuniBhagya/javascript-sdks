@@ -35,6 +35,10 @@ export interface FieldConfig {
    */
   label: string;
   /**
+   * Number of boxes to render. Applies to OTP fields only; defaults to the field's own default.
+   */
+  length?: number;
+  /**
    * The name of the field.
    */
   name: string;
@@ -139,6 +143,7 @@ export const createField = (config: FieldConfig): ReactElement => {
     options = [],
     touched = false,
     placeholder,
+    length,
   } = config;
 
   const validationError: string | null = error || validateFieldValue(value, type, required, touched);
@@ -203,7 +208,11 @@ export const createField = (config: FieldConfig): ReactElement => {
     }
     case FieldType.Otp:
       return (
-        <OtpField {...commonProps} onChange={(e: ChangeEvent<HTMLInputElement>): void => onChange(e.target.value)} />
+        <OtpField
+          {...commonProps}
+          {...(length ? {length} : {})}
+          onChange={(e: ChangeEvent<HTMLInputElement>): void => onChange(e.target.value)}
+        />
       );
     case FieldType.Number:
       return (

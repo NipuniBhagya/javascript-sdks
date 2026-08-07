@@ -39,6 +39,10 @@ import useStyles from '../SignUp/BaseSignUp.styles';
  * Render props for custom UI rendering.
  */
 export interface BaseRecoveryRenderProps {
+  /**
+   * Additional data from the current flow step (e.g. `otpLength` for OTP steps).
+   */
+  additionalData: Record<string, any>;
   components: any[];
   error?: Error | null;
   fieldErrors: Record<string, string>;
@@ -225,6 +229,15 @@ const BaseRecoveryContent: FC<BaseRecoveryProps> = ({
     [currentFlow, extractFormFields],
   );
 
+  /**
+   * Step data the server sends alongside the components, such as the `otpLength` an OTP step
+   * reports so the field can render a matching number of boxes.
+   */
+  const additionalData: Record<string, any> = useMemo(
+    () => ((currentFlow?.data as any)?.additionalData as Record<string, any>) ?? {},
+    [currentFlow],
+  );
+
   const form: any = useForm<Record<string, string>>({
     fields: formFields,
     initialValues: {},
@@ -407,6 +420,7 @@ const BaseRecoveryContent: FC<BaseRecoveryProps> = ({
         {
           _customRenderers: customRenderers,
           _theme: theme,
+          additionalData,
           buttonClassName: buttonClasses,
           inputClassName: inputClasses,
           meta,
@@ -418,6 +432,7 @@ const BaseRecoveryContent: FC<BaseRecoveryProps> = ({
         },
       ),
     [
+      additionalData,
       customRenderers,
       buttonClasses,
       formErrors,
@@ -500,6 +515,7 @@ const BaseRecoveryContent: FC<BaseRecoveryProps> = ({
   if (children) {
     if (typeof children === 'function') {
       const renderProps: BaseRecoveryRenderProps = {
+        additionalData,
         components: currentFlow?.data?.components || [],
         error: apiError,
         fieldErrors: formErrors,

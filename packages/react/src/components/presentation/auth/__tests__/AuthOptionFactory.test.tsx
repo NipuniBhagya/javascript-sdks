@@ -402,3 +402,59 @@ describe('AuthOptionFactory consent decisions', () => {
     expect(purpose.elements[0]).toEqual({approved: true, name: 'system'});
   });
 });
+
+describe('AuthOptionFactory OTP length', () => {
+  const otpComponent: EmbeddedFlowComponent = {
+    id: 'otp_input',
+    label: 'One-time code',
+    ref: 'otp',
+    required: true,
+    type: EmbeddedFlowComponentType.OtpInput,
+  };
+
+  const themeContextValue: ThemeContextValue = {
+    colorScheme: 'light',
+    direction: 'ltr',
+    theme: createTheme(),
+    toggleTheme: vi.fn(),
+  };
+
+  const renderOtp = (additionalData?: Record<string, unknown>): HTMLElement => {
+    const elements = renderSignInComponents(
+      [otpComponent],
+      {},
+      {},
+      {},
+      false,
+      true,
+      () => undefined,
+      () => undefined,
+      {additionalData},
+    );
+    const {container} = render(
+      <ThemeContext.Provider value={themeContextValue}>
+        <div>{elements}</div>
+      </ThemeContext.Provider>,
+    );
+
+    return container;
+  };
+
+  const digitCount = (container: HTMLElement): number => container.querySelectorAll('input').length;
+
+  it('renders six boxes when the step reports no OTP length', () => {
+    expect(digitCount(renderOtp())).toBe(6);
+  });
+
+  it('renders the number of boxes reported by the step', () => {
+    expect(digitCount(renderOtp({otpLength: '8'}))).toBe(8);
+  });
+
+  it('accepts a numeric reported length', () => {
+    expect(digitCount(renderOtp({otpLength: 4}))).toBe(4);
+  });
+
+  it.each([['0'], ['-1'], ['abc'], ['4.5'], ['']])('falls back to six boxes for %s', (otpLength) => {
+    expect(digitCount(renderOtp({otpLength}))).toBe(6);
+  });
+});

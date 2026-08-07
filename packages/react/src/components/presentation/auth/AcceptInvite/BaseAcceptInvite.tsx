@@ -882,6 +882,7 @@ const BaseAcceptInvite: FC<BaseAcceptInviteProps> = ({
                 {
                   _customRenderers: customRenderers,
                   _theme: theme,
+                  additionalData,
                   onInputBlur: handleInputBlur,
                   onSubmit: handleSubmit,
                   size,

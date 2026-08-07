@@ -137,6 +137,20 @@ const getFieldType = (variant: EmbeddedFlowComponentType): FieldType => {
 };
 
 /**
+ * Reads the OTP length the server reported for the current step, so the field renders as many boxes
+ * as the code the user was actually sent. Returns undefined when the step carries no usable value,
+ * leaving the field on its own default.
+ *
+ * @param additionalData - Additional data from the current flow step.
+ * @returns The reported length, or undefined.
+ */
+const getReportedOtpLength = (additionalData: Record<string, unknown> | undefined): number | undefined => {
+  const length = Number(additionalData?.['otpLength']);
+
+  return Number.isInteger(length) && length > 0 ? length : undefined;
+};
+
+/**
  * Get typography variant from component variant.
  */
 const getTypographyVariant = (variant: string): any => {
@@ -347,6 +361,7 @@ const createAuthComponentFromFlow = (
         error,
         id: component.id,
         label: resolve(component.label) || '',
+        length: getReportedOtpLength(options.additionalData),
         name: identifier,
         onBlur: () => options.onInputBlur?.(identifier),
         onChange: (newValue: string) => onInputChange(identifier, newValue),
